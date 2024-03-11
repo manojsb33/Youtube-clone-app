@@ -26,7 +26,7 @@ pipeline{
          always {
              echo 'Slack Notifications'
              slackSend (
-                 channel: '#jenkins',   #change your channel name
+                 channel: '#jenkins',   
                  color: COLOR_MAP[currentBuild.currentResult],
                  message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
                )
