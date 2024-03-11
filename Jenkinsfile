@@ -30,15 +30,6 @@ pipeline{
             }
         }
      }
-     post {
-         always {
-             echo 'Slack Notifications'
-             slackSend (
-                 channel: '#jenkins', 
-                 color: COLOR_MAP[currentBuild.currentResult],
-                 message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
-               )
-           }
         stage('sonarqube Analysis'){
         when { expression { params.action == 'create'}}    
             steps{
@@ -60,5 +51,14 @@ pipeline{
                 NpmInstall()
             }
         }
+        post {
+         always {
+             echo 'Slack Notifications'
+             slackSend (
+                 channel: '#jenkins', 
+                 color: COLOR_MAP[currentBuild.currentResult],
+                 message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+               )
+           }
     }
 }
