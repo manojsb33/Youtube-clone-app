@@ -4,7 +4,6 @@ def COLOR_MAP = [
     'SUCCESS' : 'good'
 ]
 
-
 pipeline{
     agent any
     tools{
@@ -14,28 +13,30 @@ pipeline{
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
     }
-
     parameters {
         choice(name: 'action', choices: 'create\ndelete', description: 'Select create or destroy.')
     }
     stages{
+
         stage('clean workspace'){
             steps{
                 cleanWorkspace()
             }
         }
+
         stage('checkout from Git'){
             steps{
                 GitCheckout('https://github.com/manojsb33/Youtube-clone-app.git', 'main')
             }
         }
-     }
+
         stage('sonarqube Analysis'){
         when { expression { params.action == 'create'}}    
             steps{
                 SonarqubeAnalysis()
             }
         }
+
         stage('sonarqube QualitGate'){
         when { expression { params.action == 'create'}}    
             steps{
@@ -45,20 +46,25 @@ pipeline{
                 }
             }
         }
+
         stage('Npm'){
         when { expression { params.action == 'create'}}    
             steps{
                 NpmInstall()
             }
         }
-        post {
-         always {
-             echo 'Slack Notifications'
-             slackSend (
-                 channel: '#jenkins', 
-                 color: COLOR_MAP[currentBuild.currentResult],
-                 message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
-               )
-           }
+
+    }
+    post {
+        always {
+            echo 'Slack Notification'
+            slackSend (
+                channel: '#jenkins', 
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+            )
+        }
+
     }
 }
+
