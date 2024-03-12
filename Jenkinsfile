@@ -15,6 +15,8 @@ pipeline{
     }
     parameters {
         choice(name: 'action', choices: 'create\ndelete', description: 'Select create or destroy.')
+        string(name: 'DOCKER_HUB_USERNAME', defaultValue: 'manoj3366', description: 'Docker Hub Username')
+        string(name: 'IMAGE_NAME', defaultValue: 'youtube', description: 'Docker Image Name')
     }
     stages{
 
@@ -64,6 +66,35 @@ pipeline{
         when { expression { params.action == 'create'}}    
             steps{
                 TrivyFileScan()
+            }
+        }
+        stage('Docker Build'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                script{
+                   def dockerHubUsername = params.DOCKER_HUB_USERNAME
+                   def imageName = params.IMAGE_NAME
+
+                   DockerBuild(dockerHubUsername, imageName)
+                }
+            }
+        }
+        stage('Trivy iamge'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                TrivyImage()
+            }
+        }
+        stage('Run container'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                RunContainer()
+            }
+        }
+        stage('Remove container'){
+        when { expression { params.action == 'delete'}}    
+            steps{
+                RemoveContainer()
             }
         }
 
