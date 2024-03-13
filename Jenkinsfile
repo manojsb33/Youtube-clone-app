@@ -56,7 +56,7 @@ pipeline{
             }
         }
         stage('OWASP FS SCAN') {
-        when { expression { params.action == 'create'}}
+        when { expression { params.action == 'delete'}}
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
@@ -97,7 +97,18 @@ pipeline{
                 RemoveContainer()
             }
         }
-
+        stage('Kube deploy') {
+        when { expression { params.action == 'create'}}
+            steps{
+                KubeDeploy()
+            }    
+        }
+        stage('delete deploy') {
+        when { expression { params.action == 'delete'}}
+            steps{
+                KubeDelete()
+            }    
+        }
     }
     post {
         always {
